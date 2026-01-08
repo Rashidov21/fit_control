@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Superuser Dashboard - Fit Control{% endblock %}
+
+{% block content %}
+<div x-data="superuserDashboard()" x-cloak class="min-h-screen">
+    <!-- Sidebar -->
+    <div class="flex">
+        <aside class="w-64 bg-gray-800 text-white min-h-screen">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold mb-8">Fit Control</h1>
+                <nav class="space-y-2">
+                    <a @click="currentView = 'gyms'" :class="currentView === 'gyms' ? 'bg-gray-700' : ''"
+                       class="block px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">Gymlar</a>
+                    <a @click="currentView = 'plans'" :class="currentView === 'plans' ? 'bg-gray-700' : ''"
+                       class="block px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">Obuna rejalari</a>
+                    <a @click="currentView = 'statistics'" :class="currentView === 'statistics' ? 'bg-gray-700' : ''"
+                       class="block px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">Statistika</a>
+                    <a href="/api/auth/logout/" class="block px-4 py-2 rounded hover:bg-gray-700">Chiqish</a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <!-- Gyms View -->
+            <div x-show="currentView === 'gyms'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">Gymlar</h2>
+                    <button @click="showCreateGym = true"
+                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Yangi gym qo'shish
+                    </button>
+                </div>
+
+                <!-- Create Gym Modal -->
+                <div x-show="showCreateGym" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-96">
+                        <h3 class="text-xl font-bold mb-4">Yangi gym qo'shish</h3>
+                        <form @submit.prevent="createGym" class="space-y-4">
+                            <input type="text" x-model="newGym.name" placeholder="Gym nomi" required
+                                   class="w-full px-4 py-2 border rounded">
+                            <input type="text" x-model="newGym.address" placeholder="Manzil"
+                                   class="w-full px-4 py-2 border rounded">
+                            <input type="tel" x-model="newGym.phone" placeholder="Telefon"
+                                   class="w-full px-4 py-2 border rounded">
+                            <input type="email" x-model="newGym.email" placeholder="Email"
+                                   class="w-full px-4 py-2 border rounded">
+                            <div class="flex gap-2">
+                                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                    Yaratish
+                                </button>
+                                <button type="button" @click="showCreateGym = false"
+                                        class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                    Bekor qilish
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Gyms Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nomi</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Telefon</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Obuna</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="gym in gyms" :key="gym.id">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="gym.name"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="gym.phone"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span :class="{
+                                            'bg-green-100 text-green-800': gym.subscription_status === 'active' || gym.subscription_status === 'trial',
+                                            'bg-red-100 text-red-800': gym.subscription_status === 'expired'
+                                        }" class="px-2 py-1 rounded text-xs font-semibold" x-text="gym.subscription_status"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="gym.subscription_plan_details?.name || 'Yo\'q'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <button @click="openGymDetails(gym)" class="text-blue-600 hover:text-blue-800 mr-2">
+                                            Batafsil
+                                        </button>
+                                        <button @click="assignSubscription(gym)" class="text-green-600 hover:text-green-800">
+                                            Obuna berish
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Subscription Plans View -->
+            <div x-show="currentView === 'plans'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">Obuna rejalari</h2>
+                    <button @click="showCreatePlan = true"
+                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Yangi reja qo'shish
+                    </button>
+                </div>
+
+                <!-- Plans Grid -->
+                <div class="grid md:grid-cols-3 gap-6">
+                    <template x-for="plan in plans" :key="plan.id">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-xl font-bold mb-2" x-text="plan.name"></h3>
+                            <p class="text-3xl font-bold text-blue-600 mb-2" x-text="plan.price + ' so\'m'"></p>
+                            <p class="text-gray-600 mb-4" x-text="plan.plan_type"></p>
+                            <p class="text-sm text-gray-500" x-text="plan.description"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Statistics View -->
+            <div x-show="currentView === 'statistics'">
+                <h2 class="text-3xl font-bold mb-6">Umumiy statistika</h2>
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-gray-600 mb-2">Jami gymlar</h3>
+                        <p class="text-3xl font-bold" x-text="gyms.length"></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-gray-600 mb-2">Faol gymlar</h3>
+                        <p class="text-3xl font-bold text-green-600" x-text="activeGyms"></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-gray-600 mb-2">Trial gymlar</h3>
+                        <p class="text-3xl font-bold text-blue-600" x-text="trialGyms"></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-gray-600 mb-2">Muddati o'tgan</h3>
+                        <p class="text-3xl font-bold text-red-600" x-text="expiredGyms"></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+function superuserDashboard() {
+    return {
+        currentView: 'gyms',
+        gyms: [],
+        plans: [],
+        showCreateGym: false,
+        showCreatePlan: false,
+        newGym: {
+            name: '',
+            address: '',
+            phone: '',
+            email: ''
+        },
+        
+        get activeGyms() {
+            return this.gyms.filter(g => g.subscription_status === 'active').length;
+        },
+        get trialGyms() {
+            return this.gyms.filter(g => g.subscription_status === 'trial').length;
+        },
+        get expiredGyms() {
+            return this.gyms.filter(g => g.subscription_status === 'expired').length;
+        },
+        
+        async init() {
+            await Promise.all([this.loadGyms(), this.loadPlans()]);
+        },
+        
+        async loadGyms() {
+            try {
+                const response = await fetch('/api/superuser/gyms/', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    this.gyms = await response.json();
+                }
+            } catch (error) {
+                console.error('Error loading gyms:', error);
+            }
+        },
+        
+        async loadPlans() {
+            try {
+                const response = await fetch('/api/subscriptions/plans/', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    this.plans = await response.json();
+                }
+            } catch (error) {
+                console.error('Error loading plans:', error);
+            }
+        },
+        
+        async createGym() {
+            try {
+                const response = await fetch('/api/superuser/gyms/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(this.newGym)
+                });
+                
+                if (response.ok) {
+                    await this.loadGyms();
+                    this.showCreateGym = false;
+                    this.newGym = { name: '', address: '', phone: '', email: '' };
+                }
+            } catch (error) {
+                console.error('Error creating gym:', error);
+            }
+        },
+        
+        openGymDetails(gym) {
+            // Implement gym details modal
+            console.log('Gym details:', gym);
+        },
+        
+        async assignSubscription(gym) {
+            // Implement subscription assignment
+            console.log('Assign subscription to:', gym);
+        },
+        
+        getCsrfToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
+        }
+    }
+}
+</script>
+{% endblock %}
