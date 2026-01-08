@@ -33,7 +33,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold">Mijozlar</h2>
                     <button @click="showCreateClient = true"
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Yangi mijoz qo'shish
                     </button>
                 </div>
@@ -73,7 +73,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold">To'lovlar</h2>
                     <button @click="showCreatePayment = true"
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Yangi to'lov qo'shish
                     </button>
                 </div>
@@ -92,8 +92,8 @@
                             <template x-for="payment in payments" :key="payment.id">
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap" x-text="payment.client_name"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap" x-text="payment.amount + ' so\'m'"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap" x-text="payment.payment_date"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="formatNumber(payment.amount) + ' so\'m'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="formatDate(payment.payment_date)"></td>
                                 </tr>
                             </template>
                         </tbody>
@@ -106,7 +106,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold">Xarajatlar</h2>
                     <button @click="showCreateExpense = true"
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Yangi xarajat qo'shish
                     </button>
                 </div>
@@ -125,8 +125,8 @@
                             <template x-for="expense in expenses" :key="expense.id">
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap" x-text="expense.category"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap" x-text="expense.amount + ' so\'m'"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap" x-text="expense.expense_date"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="formatNumber(expense.amount) + ' so\'m'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="formatDate(expense.expense_date)"></td>
                                 </tr>
                             </template>
                         </tbody>
@@ -144,15 +144,15 @@
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="text-gray-600 mb-2">Jami daromad</h3>
-                        <p class="text-3xl font-bold text-green-600" x-text="(statistics?.total_income || 0) + ' so\'m'"></p>
+                        <p class="text-3xl font-bold text-green-600" x-text="formatNumber(statistics?.total_income || 0) + ' so\'m'"></p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="text-gray-600 mb-2">Jami xarajatlar</h3>
-                        <p class="text-3xl font-bold text-red-600" x-text="(statistics?.total_expenses || 0) + ' so\'m'"></p>
+                        <p class="text-3xl font-bold text-red-600" x-text="formatNumber(statistics?.total_expenses || 0) + ' so\'m'"></p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="text-gray-600 mb-2">Foyda</h3>
-                        <p class="text-3xl font-bold text-blue-600" x-text="(statistics?.profit || 0) + ' so\'m'"></p>
+                        <p class="text-3xl font-bold text-green-600" x-text="formatNumber(statistics?.profit || 0) + ' so\'m'"></p>
                     </div>
                 </div>
             </div>
@@ -164,6 +164,148 @@
                     <p class="mb-4">Mijozlaringizni QR kod orqali ro'yxatdan o'tkazish uchun:</p>
                     <div id="qrcode" class="flex justify-center mb-4"></div>
                     <p class="text-sm text-gray-600" x-text="qrUrl"></p>
+                </div>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div x-show="error" class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <span x-text="error"></span>
+            </div>
+            <div x-show="success" class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <span x-text="success"></span>
+            </div>
+
+            <!-- Create Client Modal -->
+            <div x-show="showCreateClient" @click.away="showCreateClient = false"
+                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-lg w-96">
+                    <h3 class="text-xl font-bold mb-4">Yangi mijoz qo'shish</h3>
+                    <form @submit.prevent="createClient" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ism</label>
+                            <input type="text" x-model="newClient.first_name" required
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Familiya</label>
+                            <input type="text" x-model="newClient.last_name" required
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                            <input type="tel" x-model="newClient.phone" required
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" x-model="newClient.email"
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Izoh</label>
+                            <textarea x-model="newClient.notes" rows="3"
+                                      class="w-full px-4 py-2 border rounded"></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" :disabled="creatingClient"
+                                    class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50">
+                                <span x-show="!creatingClient">Yaratish</span>
+                                <span x-show="creatingClient">Yaratilmoqda...</span>
+                            </button>
+                            <button type="button" @click="showCreateClient = false"
+                                    class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                Bekor qilish
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Create Payment Modal -->
+            <div x-show="showCreatePayment" @click.away="showCreatePayment = false"
+                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-lg w-96">
+                    <h3 class="text-xl font-bold mb-4">Yangi to'lov qo'shish</h3>
+                    <form @submit.prevent="createPayment" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mijoz</label>
+                            <select x-model="newPayment.client" required
+                                    class="w-full px-4 py-2 border rounded">
+                                <option value="">Mijozni tanlang</option>
+                                <template x-for="client in clients" :key="client.id">
+                                    <option :value="client.id" x-text="client.full_name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Summa</label>
+                            <input type="number" x-model="newPayment.amount" step="0.01" required min="0"
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">To'lov sanasi</label>
+                            <input type="date" x-model="newPayment.payment_date" required
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Izoh</label>
+                            <textarea x-model="newPayment.notes" rows="3"
+                                      class="w-full px-4 py-2 border rounded"></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" :disabled="creatingPayment"
+                                    class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50">
+                                <span x-show="!creatingPayment">Yaratish</span>
+                                <span x-show="creatingPayment">Yaratilmoqda...</span>
+                            </button>
+                            <button type="button" @click="showCreatePayment = false"
+                                    class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                Bekor qilish
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Create Expense Modal -->
+            <div x-show="showCreateExpense" @click.away="showCreateExpense = false"
+                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-lg w-96">
+                    <h3 class="text-xl font-bold mb-4">Yangi xarajat qo'shish</h3>
+                    <form @submit.prevent="createExpense" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategoriya</label>
+                            <input type="text" x-model="newExpense.category" required
+                                   class="w-full px-4 py-2 border rounded"
+                                   placeholder="Masalan: Inventar, Oylik to'lov, va h.k.">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Summa</label>
+                            <input type="number" x-model="newExpense.amount" step="0.01" required min="0"
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Xarajat sanasi</label>
+                            <input type="date" x-model="newExpense.expense_date" required
+                                   class="w-full px-4 py-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tavsif</label>
+                            <textarea x-model="newExpense.description" rows="3"
+                                      class="w-full px-4 py-2 border rounded"></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" :disabled="creatingExpense"
+                                    class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50">
+                                <span x-show="!creatingExpense">Yaratish</span>
+                                <span x-show="creatingExpense">Yaratilmoqda...</span>
+                            </button>
+                            <button type="button" @click="showCreateExpense = false"
+                                    class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                Bekor qilish
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </main>
@@ -184,6 +326,30 @@ function gymAdminDashboard() {
         showCreateClient: false,
         showCreatePayment: false,
         showCreateExpense: false,
+        creatingClient: false,
+        creatingPayment: false,
+        creatingExpense: false,
+        error: '',
+        success: '',
+        newClient: {
+            first_name: '',
+            last_name: '',
+            phone: '',
+            email: '',
+            notes: ''
+        },
+        newPayment: {
+            client: '',
+            amount: '',
+            payment_date: new Date().toISOString().split('T')[0],
+            notes: ''
+        },
+        newExpense: {
+            category: '',
+            amount: '',
+            expense_date: new Date().toISOString().split('T')[0],
+            description: ''
+        },
         
         async init() {
             await Promise.all([
@@ -203,9 +369,12 @@ function gymAdminDashboard() {
                 });
                 if (response.ok) {
                     this.gym = await response.json();
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Gym ma\'lumotlarini yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading gym:', error);
+                this.showError('Gym ma\'lumotlarini yuklashda xatolik: ' + error.message);
             }
         },
         
@@ -216,9 +385,12 @@ function gymAdminDashboard() {
                 });
                 if (response.ok) {
                     this.clients = await response.json();
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Mijozlarni yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading clients:', error);
+                this.showError('Mijozlarni yuklashda xatolik: ' + error.message);
             }
         },
         
@@ -229,9 +401,12 @@ function gymAdminDashboard() {
                 });
                 if (response.ok) {
                     this.payments = await response.json();
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'To\'lovlarni yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading payments:', error);
+                this.showError('To\'lovlarni yuklashda xatolik: ' + error.message);
             }
         },
         
@@ -242,9 +417,12 @@ function gymAdminDashboard() {
                 });
                 if (response.ok) {
                     this.expenses = await response.json();
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Xarajatlarni yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading expenses:', error);
+                this.showError('Xarajatlarni yuklashda xatolik: ' + error.message);
             }
         },
         
@@ -255,9 +433,12 @@ function gymAdminDashboard() {
                 });
                 if (response.ok) {
                     this.statistics = await response.json();
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Statistikani yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading statistics:', error);
+                this.showError('Statistikani yuklashda xatolik: ' + error.message);
             }
         },
         
@@ -270,13 +451,167 @@ function gymAdminDashboard() {
                     const data = await response.json();
                     this.qrUrl = data.qr_url;
                     // Generate QR code image
-                    QRCode.toCanvas(document.getElementById('qrcode'), data.qr_url, {
-                        width: 256
-                    });
+                    const qrElement = document.getElementById('qrcode');
+                    if (qrElement) {
+                        qrElement.innerHTML = '';
+                        QRCode.toCanvas(qrElement, data.qr_url, {
+                            width: 256
+                        });
+                    }
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'QR kodni yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading QR code:', error);
+                this.showError('QR kodni yuklashda xatolik: ' + error.message);
             }
+        },
+        
+        async createClient() {
+            this.creatingClient = true;
+            try {
+                const response = await fetch('/api/clients/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(this.newClient)
+                });
+                
+                if (response.ok) {
+                    this.showSuccess('Mijoz muvaffaqiyatli yaratildi');
+                    await this.loadClients();
+                    await this.loadStatistics();
+                    this.showCreateClient = false;
+                    this.newClient = { first_name: '', last_name: '', phone: '', email: '', notes: '' };
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || Object.values(error).flat().join(', ') || 'Mijoz yaratishda xatolik');
+                }
+            } catch (error) {
+                this.showError('Mijoz yaratishda xatolik: ' + error.message);
+            } finally {
+                this.creatingClient = false;
+            }
+        },
+        
+        async createPayment() {
+            this.creatingPayment = true;
+            try {
+                const paymentData = {
+                    client: parseInt(this.newPayment.client),
+                    amount: parseFloat(this.newPayment.amount),
+                    payment_date: this.newPayment.payment_date,
+                    notes: this.newPayment.notes
+                };
+                
+                const response = await fetch('/api/payments/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(paymentData)
+                });
+                
+                if (response.ok) {
+                    this.showSuccess('To\'lov muvaffaqiyatli yaratildi');
+                    await this.loadPayments();
+                    await this.loadStatistics();
+                    this.showCreatePayment = false;
+                    this.newPayment = {
+                        client: '',
+                        amount: '',
+                        payment_date: new Date().toISOString().split('T')[0],
+                        notes: ''
+                    };
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || Object.values(error).flat().join(', ') || 'To\'lov yaratishda xatolik');
+                }
+            } catch (error) {
+                this.showError('To\'lov yaratishda xatolik: ' + error.message);
+            } finally {
+                this.creatingPayment = false;
+            }
+        },
+        
+        async createExpense() {
+            this.creatingExpense = true;
+            try {
+                const expenseData = {
+                    category: this.newExpense.category,
+                    amount: parseFloat(this.newExpense.amount),
+                    expense_date: this.newExpense.expense_date,
+                    description: this.newExpense.description
+                };
+                
+                const response = await fetch('/api/expenses/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(expenseData)
+                });
+                
+                if (response.ok) {
+                    this.showSuccess('Xarajat muvaffaqiyatli yaratildi');
+                    await this.loadExpenses();
+                    await this.loadStatistics();
+                    this.showCreateExpense = false;
+                    this.newExpense = {
+                        category: '',
+                        amount: '',
+                        expense_date: new Date().toISOString().split('T')[0],
+                        description: ''
+                    };
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || Object.values(error).flat().join(', ') || 'Xarajat yaratishda xatolik');
+                }
+            } catch (error) {
+                this.showError('Xarajat yaratishda xatolik: ' + error.message);
+            } finally {
+                this.creatingExpense = false;
+            }
+        },
+        
+        formatNumber(num) {
+            if (!num) return '0';
+            return new Intl.NumberFormat('uz-UZ').format(num);
+        },
+        
+        formatDate(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleDateString('uz-UZ');
+        },
+        
+        showError(message) {
+            this.error = message;
+            this.success = '';
+            setTimeout(() => { this.error = ''; }, 5000);
+        },
+        
+        showSuccess(message) {
+            this.success = message;
+            this.error = '';
+            setTimeout(() => { this.success = ''; }, 5000);
+        },
+        
+        getCsrfToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
         }
     }
 }

@@ -12,6 +12,13 @@
                 <nav class="space-y-2">
                     <a @click="currentView = 'gyms'" :class="currentView === 'gyms' ? 'bg-gray-700' : ''"
                        class="block px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">Gymlar</a>
+                    <a @click="currentView = 'trial-requests'" :class="currentView === 'trial-requests' ? 'bg-gray-700' : ''"
+                       class="block px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">
+                        Trial so'rovlar
+                        <span x-show="pendingTrialRequestsCount > 0" 
+                              class="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded" 
+                              x-text="pendingTrialRequestsCount"></span>
+                    </a>
                     <a @click="currentView = 'plans'" :class="currentView === 'plans' ? 'bg-gray-700' : ''"
                        class="block px-4 py-2 rounded hover:bg-gray-700 cursor-pointer">Obuna rejalari</a>
                     <a @click="currentView = 'statistics'" :class="currentView === 'statistics' ? 'bg-gray-700' : ''"
@@ -23,12 +30,19 @@
 
         <!-- Main Content -->
         <main class="flex-1 p-8">
+            <!-- Error/Success Messages -->
+            <div x-show="error" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <span x-text="error"></span>
+            </div>
+            <div x-show="success" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <span x-text="success"></span>
+            </div>
             <!-- Gyms View -->
             <div x-show="currentView === 'gyms'">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold">Gymlar</h2>
                     <button @click="showCreateGym = true"
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Yangi gym qo'shish
                     </button>
                 </div>
@@ -47,7 +61,7 @@
                             <input type="email" x-model="newGym.email" placeholder="Email"
                                    class="w-full px-4 py-2 border rounded">
                             <div class="flex gap-2">
-                                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700">
                                     Yaratish
                                 </button>
                                 <button type="button" @click="showCreateGym = false"
@@ -61,7 +75,10 @@
 
                 <!-- Gyms Table -->
                 <div class="bg-white rounded-lg shadow overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <div x-show="loadingGyms" class="p-8 text-center">
+                        <p class="text-gray-600">Yuklanmoqda...</p>
+                    </div>
+                    <table x-show="!loadingGyms" class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nomi</th>
@@ -75,7 +92,7 @@
                             <template x-for="gym in gyms" :key="gym.id">
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap" x-text="gym.name"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap" x-text="gym.phone"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="gym.phone || '-'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span :class="{
                                             'bg-green-100 text-green-800': gym.subscription_status === 'active' || gym.subscription_status === 'trial',
@@ -84,7 +101,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap" x-text="gym.subscription_plan_details?.name || 'Yo\'q'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <button @click="openGymDetails(gym)" class="text-blue-600 hover:text-blue-800 mr-2">
+                                        <button @click="openGymDetails(gym)" class="text-green-600 hover:text-green-800 mr-2">
                                             Batafsil
                                         </button>
                                         <button @click="assignSubscription(gym)" class="text-green-600 hover:text-green-800">
@@ -96,6 +113,261 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Gym Details Modal -->
+                <div x-show="showGymDetails" @click.away="showGymDetails = false" 
+                     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-bold" x-text="selectedGym?.name || 'Gym ma\'lumotlari'"></h3>
+                            <button @click="showGymDetails = false" class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div x-show="loadingGymDetails" class="text-center py-8">
+                            <p class="text-gray-600">Yuklanmoqda...</p>
+                        </div>
+                        
+                        <div x-show="!loadingGymDetails && selectedGym" class="space-y-4">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700">Manzil</label>
+                                    <p class="text-gray-900" x-text="selectedGym?.address || '-'"></p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700">Telefon</label>
+                                    <p class="text-gray-900" x-text="selectedGym?.phone || '-'"></p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700">Email</label>
+                                    <p class="text-gray-900" x-text="selectedGym?.email || '-'"></p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700">Status</label>
+                                    <p class="text-gray-900" x-text="selectedGym?.subscription_status || '-'"></p>
+                                </div>
+                            </div>
+                            
+                            <div x-show="selectedGym?.statistics" class="mt-6">
+                                <h4 class="text-lg font-semibold mb-3">Statistika</h4>
+                                <div class="grid md:grid-cols-4 gap-4">
+                                    <div class="bg-gray-50 p-4 rounded">
+                                        <p class="text-sm text-gray-600">Mijozlar</p>
+                                        <p class="text-2xl font-bold" x-text="selectedGym?.statistics?.clients_count || 0"></p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded">
+                                        <p class="text-sm text-gray-600">Daromad</p>
+                                        <p class="text-2xl font-bold text-green-600" x-text="formatNumber(selectedGym?.statistics?.total_income || 0) + ' so\'m'"></p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded">
+                                        <p class="text-sm text-gray-600">Xarajatlar</p>
+                                        <p class="text-2xl font-bold text-red-600" x-text="formatNumber(selectedGym?.statistics?.total_expenses || 0) + ' so\'m'"></p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded">
+                                        <p class="text-sm text-gray-600">Foyda</p>
+                                        <p class="text-2xl font-bold text-green-600" x-text="formatNumber(selectedGym?.statistics?.profit || 0) + ' so\'m'"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t">
+                                <h4 class="text-lg font-semibold mb-3">Admin foydalanuvchi yaratish</h4>
+                                <form @submit.prevent="createAdminUser" class="space-y-3">
+                                    <div class="grid md:grid-cols-3 gap-3">
+                                        <input type="text" x-model="newAdmin.username" placeholder="Foydalanuvchi nomi" required
+                                               class="px-4 py-2 border rounded">
+                                        <input type="password" x-model="newAdmin.password" placeholder="Parol" required
+                                               class="px-4 py-2 border rounded">
+                                        <input type="email" x-model="newAdmin.email" placeholder="Email"
+                                               class="px-4 py-2 border rounded">
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button type="submit" :disabled="creatingAdmin"
+                                                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50">
+                                            <span x-show="!creatingAdmin">Yaratish</span>
+                                            <span x-show="creatingAdmin">Yaratilmoqda...</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Assignment Modal -->
+                <div x-show="showAssignSubscription" @click.away="showAssignSubscription = false"
+                     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-96">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Obuna rejasini tanlash</h3>
+                            <button @click="showAssignSubscription = false" class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div x-show="loadingPlans" class="text-center py-4">
+                            <p class="text-gray-600">Yuklanmoqda...</p>
+                        </div>
+                        
+                        <div x-show="!loadingPlans">
+                            <p class="text-sm text-gray-600 mb-4" x-text="'Gym: ' + (subscriptionGym?.name || '')"></p>
+                            <div class="space-y-2 max-h-96 overflow-y-auto">
+                                <template x-for="plan in plans" :key="plan.id">
+                                    <div @click="selectPlanForAssignment(plan)" 
+                                         class="p-4 border rounded cursor-pointer hover:bg-gray-50"
+                                         :class="selectedPlan?.id === plan.id ? 'border-green-500 bg-green-50' : ''">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <p class="font-semibold" x-text="plan.name"></p>
+                                                <p class="text-sm text-gray-600" x-text="plan.plan_type"></p>
+                                            </div>
+                                            <p class="text-lg font-bold text-green-600" x-text="formatNumber(plan.price) + ' so\'m'"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            
+                            <div class="mt-4 flex gap-2">
+                                <button @click="confirmAssignSubscription" :disabled="!selectedPlan || assigningSubscription"
+                                        class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50">
+                                    <span x-show="!assigningSubscription">Tasdiqlash</span>
+                                    <span x-show="assigningSubscription">Tayyorlanmoqda...</span>
+                                </button>
+                                <button @click="showAssignSubscription = false"
+                                        class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                    Bekor qilish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trial Requests View -->
+            <div x-show="currentView === 'trial-requests'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">Trial so'rovlar</h2>
+                </div>
+
+                <!-- Trial Requests Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div x-show="loadingTrialRequests" class="p-8 text-center">
+                        <p class="text-gray-600">Yuklanmoqda...</p>
+                    </div>
+                    <table x-show="!loadingTrialRequests" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ism</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Telefon</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sana</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="request in trialRequests" :key="request.id">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="request.name"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="request.phone"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span :class="{
+                                            'bg-yellow-100 text-yellow-800': request.status === 'pending',
+                                            'bg-green-100 text-green-800': request.status === 'approved',
+                                            'bg-red-100 text-red-800': request.status === 'rejected'
+                                        }" class="px-2 py-1 rounded text-xs font-semibold" x-text="request.status"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap" x-text="new Date(request.created_at).toLocaleDateString('uz-UZ')"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <template x-if="request.status === 'pending'">
+                                            <div class="flex gap-2">
+                                                <button @click="openApproveTrial(request)" class="text-green-600 hover:text-green-800">
+                                                    Tasdiqlash
+                                                </button>
+                                                <button @click="openRejectTrial(request)" class="text-red-600 hover:text-red-800">
+                                                    Rad etish
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template x-if="request.status === 'approved' && request.gym_name">
+                                            <span class="text-green-600" x-text="'Gym: ' + request.gym_name"></span>
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Approve Trial Modal -->
+                <div x-show="showApproveTrial" @click.away="showApproveTrial = false"
+                     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-96">
+                        <h3 class="text-xl font-bold mb-4">Trial so'rovni tasdiqlash</h3>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600 mb-2"><strong>Ism:</strong> <span x-text="selectedTrialRequest?.name"></span></p>
+                            <p class="text-sm text-gray-600 mb-2"><strong>Telefon:</strong> <span x-text="selectedTrialRequest?.phone"></span></p>
+                        </div>
+                        <form @submit.prevent="approveTrialRequest" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Admin username</label>
+                                <input type="text" x-model="newAdmin.username" required
+                                       class="w-full px-4 py-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Admin password</label>
+                                <input type="password" x-model="newAdmin.password" required
+                                       class="w-full px-4 py-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email (ixtiyoriy)</label>
+                                <input type="email" x-model="newAdmin.email"
+                                       class="w-full px-4 py-2 border rounded">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" :disabled="approvingTrial"
+                                        class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50">
+                                    <span x-show="!approvingTrial">Tasdiqlash</span>
+                                    <span x-show="approvingTrial">Tayyorlanmoqda...</span>
+                                </button>
+                                <button type="button" @click="showApproveTrial = false"
+                                        class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                    Bekor qilish
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Reject Trial Modal -->
+                <div x-show="showRejectTrial" @click.away="showRejectTrial = false"
+                     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg w-96">
+                        <h3 class="text-xl font-bold mb-4">Trial so'rovni rad etish</h3>
+                        <form @submit.prevent="rejectTrialRequest" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sabab (ixtiyoriy)</label>
+                                <textarea x-model="rejectReason" rows="3"
+                                          class="w-full px-4 py-2 border rounded"></textarea>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" :disabled="rejectingTrial"
+                                        class="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 disabled:opacity-50">
+                                    <span x-show="!rejectingTrial">Rad etish</span>
+                                    <span x-show="rejectingTrial">Tayyorlanmoqda...</span>
+                                </button>
+                                <button type="button" @click="showRejectTrial = false"
+                                        class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                    Bekor qilish
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
             <!-- Subscription Plans View -->
@@ -103,7 +375,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold">Obuna rejalari</h2>
                     <button @click="showCreatePlan = true"
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Yangi reja qo'shish
                     </button>
                 </div>
@@ -113,7 +385,7 @@
                     <template x-for="plan in plans" :key="plan.id">
                         <div class="bg-white p-6 rounded-lg shadow">
                             <h3 class="text-xl font-bold mb-2" x-text="plan.name"></h3>
-                            <p class="text-3xl font-bold text-blue-600 mb-2" x-text="plan.price + ' so\'m'"></p>
+                            <p class="text-3xl font-bold text-green-600 mb-2" x-text="plan.price + ' so\'m'"></p>
                             <p class="text-gray-600 mb-4" x-text="plan.plan_type"></p>
                             <p class="text-sm text-gray-500" x-text="plan.description"></p>
                         </div>
@@ -135,7 +407,7 @@
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="text-gray-600 mb-2">Trial gymlar</h3>
-                        <p class="text-3xl font-bold text-blue-600" x-text="trialGyms"></p>
+                        <p class="text-3xl font-bold text-green-600" x-text="trialGyms"></p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="text-gray-600 mb-2">Muddati o'tgan</h3>
@@ -153,12 +425,35 @@ function superuserDashboard() {
         currentView: 'gyms',
         gyms: [],
         plans: [],
+        trialRequests: [],
+        pendingTrialRequestsCount: 0,
         showCreateGym: false,
+        showApproveTrial: false,
+        showRejectTrial: false,
+        selectedTrialRequest: null,
+        newAdmin: { username: '', password: '', email: '' },
         showCreatePlan: false,
+        loadingGyms: false,
+        loadingPlans: false,
+        showGymDetails: false,
+        showAssignSubscription: false,
+        selectedGym: null,
+        subscriptionGym: null,
+        selectedPlan: null,
+        loadingGymDetails: false,
+        creatingAdmin: false,
+        assigningSubscription: false,
+        error: '',
+        success: '',
         newGym: {
             name: '',
             address: '',
             phone: '',
+            email: ''
+        },
+        newAdmin: {
+            username: '',
+            password: '',
             email: ''
         },
         
@@ -173,7 +468,14 @@ function superuserDashboard() {
         },
         
         async init() {
-            await Promise.all([this.loadGyms(), this.loadPlans()]);
+            this.loadingGyms = true;
+            this.loadingPlans = true;
+            try {
+                await Promise.all([this.loadGyms(), this.loadPlans(), this.loadTrialRequests()]);
+            } finally {
+                this.loadingGyms = false;
+                this.loadingPlans = false;
+            }
         },
         
         async loadGyms() {
@@ -183,9 +485,12 @@ function superuserDashboard() {
                 });
                 if (response.ok) {
                     this.gyms = await response.json();
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Gymlarni yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading gyms:', error);
+                this.showError('Gymlarni yuklashda xatolik: ' + error.message);
             }
         },
         
@@ -196,9 +501,12 @@ function superuserDashboard() {
                 });
                 if (response.ok) {
                     this.plans = await response.json();
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Rejalarni yuklashda xatolik');
                 }
             } catch (error) {
-                console.error('Error loading plans:', error);
+                this.showError('Rejalarni yuklashda xatolik: ' + error.message);
             }
         },
         
@@ -215,23 +523,227 @@ function superuserDashboard() {
                 });
                 
                 if (response.ok) {
+                    this.showSuccess('Gym muvaffaqiyatli yaratildi');
                     await this.loadGyms();
                     this.showCreateGym = false;
                     this.newGym = { name: '', address: '', phone: '', email: '' };
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Gym yaratishda xatolik');
                 }
             } catch (error) {
-                console.error('Error creating gym:', error);
+                this.showError('Gym yaratishda xatolik: ' + error.message);
             }
         },
         
-        openGymDetails(gym) {
-            // Implement gym details modal
-            console.log('Gym details:', gym);
+        async openGymDetails(gym) {
+            this.selectedGym = gym;
+            this.showGymDetails = true;
+            this.loadingGymDetails = true;
+            
+            try {
+                const response = await fetch(`/api/superuser/gyms/${gym.id}/statistics/`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const stats = await response.json();
+                    this.selectedGym.statistics = stats;
+                }
+            } catch (error) {
+                this.showError('Statistikani yuklashda xatolik: ' + error.message);
+            } finally {
+                this.loadingGymDetails = false;
+            }
         },
         
         async assignSubscription(gym) {
-            // Implement subscription assignment
-            console.log('Assign subscription to:', gym);
+            this.subscriptionGym = gym;
+            this.selectedPlan = null;
+            this.showAssignSubscription = true;
+            
+            if (this.plans.length === 0) {
+                await this.loadPlans();
+            }
+        },
+        
+        selectPlanForAssignment(plan) {
+            this.selectedPlan = plan;
+        },
+        
+        async confirmAssignSubscription() {
+            if (!this.selectedPlan || !this.subscriptionGym) return;
+            
+            this.assigningSubscription = true;
+            try {
+                const response = await fetch(`/api/superuser/gyms/${this.subscriptionGym.id}/assign_subscription/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        subscription_plan_id: this.selectedPlan.id
+                    })
+                });
+                
+                if (response.ok) {
+                    this.showSuccess('Obuna rejasi muvaffaqiyatli tayinlandi');
+                    await this.loadGyms();
+                    this.showAssignSubscription = false;
+                    this.selectedPlan = null;
+                    this.subscriptionGym = null;
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Obuna rejasini tayinlashda xatolik');
+                }
+            } catch (error) {
+                this.showError('Obuna rejasini tayinlashda xatolik: ' + error.message);
+            } finally {
+                this.assigningSubscription = false;
+            }
+        },
+        
+        async createAdminUser() {
+            if (!this.selectedGym) return;
+            
+            this.creatingAdmin = true;
+            try {
+                const response = await fetch(`/api/superuser/gyms/${this.selectedGym.id}/create_admin/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(this.newAdmin)
+                });
+                
+                if (response.ok) {
+                    this.showSuccess('Admin foydalanuvchi muvaffaqiyatli yaratildi');
+                    this.newAdmin = { username: '', password: '', email: '' };
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Admin foydalanuvchi yaratishda xatolik');
+                }
+            } catch (error) {
+                this.showError('Admin foydalanuvchi yaratishda xatolik: ' + error.message);
+            } finally {
+                this.creatingAdmin = false;
+            }
+        },
+        
+        formatNumber(num) {
+            return new Intl.NumberFormat('uz-UZ').format(num);
+        },
+        
+        showError(message) {
+            this.error = message;
+            this.success = '';
+            setTimeout(() => { this.error = ''; }, 5000);
+        },
+        
+        showSuccess(message) {
+            this.success = message;
+            this.error = '';
+            setTimeout(() => { this.success = ''; }, 5000);
+        },
+        
+        async loadTrialRequests() {
+            this.loadingTrialRequests = true;
+            try {
+                const response = await fetch('/api/superuser/trial-requests/', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    this.trialRequests = await response.json();
+                    this.pendingTrialRequestsCount = this.trialRequests.filter(r => r.status === 'pending').length;
+                }
+            } catch (error) {
+                this.showError('Trial so\'rovlarni yuklashda xatolik: ' + error.message);
+            } finally {
+                this.loadingTrialRequests = false;
+            }
+        },
+        
+        openApproveTrial(request) {
+            this.selectedTrialRequest = request;
+            this.newAdmin = { username: '', password: '', email: '' };
+            this.showApproveTrial = true;
+        },
+        
+        openRejectTrial(request) {
+            this.selectedTrialRequest = request;
+            this.rejectReason = '';
+            this.showRejectTrial = true;
+        },
+        
+        async approveTrialRequest() {
+            if (!this.selectedTrialRequest) return;
+            
+            this.approvingTrial = true;
+            try {
+                const response = await fetch(`/api/superuser/trial-requests/${this.selectedTrialRequest.id}/approve/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(this.newAdmin)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    this.showSuccess('Trial so\'rov tasdiqlandi. Gym va admin foydalanuvchi yaratildi. Username: ' + data.admin_username);
+                    await this.loadTrialRequests();
+                    await this.loadGyms();
+                    this.showApproveTrial = false;
+                    this.selectedTrialRequest = null;
+                    this.newAdmin = { username: '', password: '', email: '' };
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Trial so\'rovni tasdiqlashda xatolik');
+                }
+            } catch (error) {
+                this.showError('Trial so\'rovni tasdiqlashda xatolik: ' + error.message);
+            } finally {
+                this.approvingTrial = false;
+            }
+        },
+        
+        async rejectTrialRequest() {
+            if (!this.selectedTrialRequest) return;
+            
+            this.rejectingTrial = true;
+            try {
+                const response = await fetch(`/api/superuser/trial-requests/${this.selectedTrialRequest.id}/reject/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        admin_notes: this.rejectReason
+                    })
+                });
+                
+                if (response.ok) {
+                    this.showSuccess('Trial so\'rov rad etildi');
+                    await this.loadTrialRequests();
+                    this.showRejectTrial = false;
+                    this.selectedTrialRequest = null;
+                    this.rejectReason = '';
+                } else {
+                    const error = await response.json();
+                    this.showError(error.error || 'Trial so\'rovni rad etishda xatolik');
+                }
+            } catch (error) {
+                this.showError('Trial so\'rovni rad etishda xatolik: ' + error.message);
+            } finally {
+                this.rejectingTrial = false;
+            }
         },
         
         getCsrfToken() {

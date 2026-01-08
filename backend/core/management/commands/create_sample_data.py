@@ -2,7 +2,7 @@
 Management command to create sample data for testing.
 """
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
+from core.models import User
 from gyms.models import Gym
 from subscriptions.models import SubscriptionPlan
 from core.models import QRCode

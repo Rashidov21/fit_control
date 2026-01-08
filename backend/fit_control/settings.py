@@ -2,8 +2,11 @@
 Django settings for fit_control project.
 """
 import os
+import logging
 from pathlib import Path
 from decouple import config
+
+logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +42,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # i18n middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -68,11 +72,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fit_control.wsgi.application'
 
 # Database
+DB_NAME = config('DB_NAME', default='db.sqlite3')
+# If DB_NAME is just a filename, use BASE_DIR, otherwise use as-is (for absolute paths)
+if not os.path.isabs(DB_NAME):
+    DB_PATH = BASE_DIR / DB_NAME
+else:
+    DB_PATH = Path(DB_NAME)
+
+# Ensure the directory exists
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+# Convert to absolute path using Path.resolve() for proper Windows compatibility
+DB_ABSOLUTE_PATH = str(DB_PATH.resolve())
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': config('DB_NAME', default='db.sqlite3'),
-
+        'NAME': DB_ABSOLUTE_PATH,
+        'OPTIONS': {
+            'timeout': 20,  # Wait up to 20 seconds for database to unlock
+        },
     }
 }
 # DATABASES = {
@@ -106,7 +125,19 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'uz'
 TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
+
+# Supported languages
+LANGUAGES = [
+    ('uz', 'O\'zbek'),
+    ('ru', 'Русский'),
+]
+
+# Locale paths
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
@@ -154,3 +185,4 @@ TRIAL_PERIOD_DAYS = 14
 # Telegram Bot
 TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_BOT_USERNAME = config('TELEGRAM_BOT_USERNAME', default='')
+TELEGRAM_CHAT_ID = config('TELEGRAM_CHAT_ID', default='')

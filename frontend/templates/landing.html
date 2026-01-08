@@ -9,65 +9,249 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-900">Fit Control</h1>
-                <a href="#pricing" class="text-blue-600 hover:text-blue-800">Narxlar</a>
+                <a href="#pricing" class="text-green-600 hover:text-green-800">Narxlar</a>
             </div>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+    <section class="bg-gradient-to-r from-green-600 to-green-800 text-white py-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">
-                Fitness Klub Boshqaruvi Platformasi
+            <h2 class="text-5xl md:text-6xl font-bold mb-6">
+                Fitness Klubingizni Keyingi Darajaga Ko'taring
             </h2>
-            <p class="text-xl mb-8 text-blue-100">
-                Mijozlarni boshqaring, to'lovlarni kuzating va xarajatlarni nazorat qiling
+            <p class="text-2xl mb-4 text-green-100">
+                Professional boshqaruv platformasi bilan mijozlaringizni avtomatik boshqaring
             </p>
-            <a href="#register" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">
-                14 kunlik bepul sinovni boshlash
-            </a>
+            <p class="text-lg mb-10 text-green-200 max-w-2xl mx-auto">
+                Mijozlar, to'lovlar, xarajatlar va statistika - barchasi bitta platformada. 14 kunlik bepul sinov bilan boshlang!
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#register" class="bg-white text-green-600 px-10 py-4 rounded-lg font-bold text-lg hover:bg-green-50 transition shadow-lg">
+                    Bepul sinovni boshlash
+                </a>
+                <a href="#features" class="bg-transparent border-2 border-white text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-green-600 transition">
+                    Xususiyatlarni ko'rish
+                </a>
+            </div>
+            <!-- Trust Indicators -->
+            <div class="mt-16 grid grid-cols-3 gap-8 max-w-3xl mx-auto">
+                <div>
+                    <div class="text-4xl font-bold" x-text="'100+'"></div>
+                    <div class="text-green-200 text-sm mt-2">Fitness klublar</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold" x-text="'10,000+'"></div>
+                    <div class="text-green-200 text-sm mt-2">Boshqarilgan mijozlar</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold">24/7</div>
+                    <div class="text-green-200 text-sm mt-2">Qo'llab-quvvatlash</div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Features -->
-    <section class="py-16">
+    <section id="features" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h3 class="text-3xl font-bold text-center mb-12">Xususiyatlar</h3>
+            <div class="text-center mb-16">
+                <h3 class="text-4xl font-bold mb-4">Kuchli Xususiyatlar</h3>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Fitness klubingizni samarali boshqarish uchun barcha kerakli vositalar
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">👥</div>
+                    <h4 class="text-xl font-bold mb-3">Mijozlar Boshqaruvi</h4>
+                    <p class="text-gray-600 mb-4">Barcha mijozlaringizni bitta joyda boshqaring, ma'lumotlarini saqlang va kuzating</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ To'liq mijoz profillari</li>
+                        <li>✓ QR kod orqali ro'yxatdan o'tish</li>
+                        <li>✓ Telegram bot integratsiyasi</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">💰</div>
+                    <h4 class="text-xl font-bold mb-3">To'lovlar Kuzatuvi</h4>
+                    <p class="text-gray-600 mb-4">Oylik to'lovlarni avtomatik kuzatish va eslatmalar yuborish</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ To'lov tarixi</li>
+                        <li>✓ Qarzlar kuzatuvchi</li>
+                        <li>✓ Avtomatik eslatmalar</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">📊</div>
+                    <h4 class="text-xl font-bold mb-3">Hisobotlar va Statistika</h4>
+                    <p class="text-gray-600 mb-4">Daromad, xarajat va foyda statistikasi real vaqtda</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ Daromad statistikasi</li>
+                        <li>✓ Xarajatlar tahlili</li>
+                        <li>✓ Foyda hisob-kitobi</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">📱</div>
+                    <h4 class="text-xl font-bold mb-3">Mobil Qo'llab-quvvatlash</h4>
+                    <p class="text-gray-600 mb-4">Har qanday qurilmadan kirish va boshqarish</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ Responsive dizayn</li>
+                        <li>✓ Telegram bot</li>
+                        <li>✓ Mobil optimizatsiya</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">🔒</div>
+                    <h4 class="text-xl font-bold mb-3">Xavfsizlik</h4>
+                    <p class="text-gray-600 mb-4">Ma'lumotlaringiz xavfsiz va shifrlangan</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ SSL shifrlash</li>
+                        <li>✓ Xavfsiz saqlash</li>
+                        <li>✓ Muntazam backup</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">⚡</div>
+                    <h4 class="text-xl font-bold mb-3">Tezkor va Oson</h4>
+                    <p class="text-gray-600 mb-4">Oson foydalanish va tezkor ishlash</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ Intuitiv interfeys</li>
+                        <li>✓ Tezkor yuklanish</li>
+                        <li>✓ Oson o'qitish</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">📈</div>
+                    <h4 class="text-xl font-bold mb-3">O'sish Imkoniyatlari</h4>
+                    <p class="text-gray-600 mb-4">Biznesingiz bilan birga o'sing</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ Cheksiz mijozlar</li>
+                        <li>✓ Kengaytiriladigan</li>
+                        <li>✓ Yangi xususiyatlar</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition">
+                    <div class="text-5xl mb-4">💬</div>
+                    <h4 class="text-xl font-bold mb-3">Qo'llab-quvvatlash</h4>
+                    <p class="text-gray-600 mb-4">24/7 professional qo'llab-quvvatlash</p>
+                    <ul class="text-sm text-gray-500 space-y-1">
+                        <li>✓ 24/7 yordam</li>
+                        <li>✓ Tezkor javob</li>
+                        <li>✓ Video qo'llanmalar</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Social Proof Section -->
+    <section class="py-20 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-bold mb-4">Mijozlarimiz Nima Deydi</h3>
+                <p class="text-xl text-gray-600">Fitness klub egasi va menejerlarining sharhlari</p>
+            </div>
             <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="text-4xl mb-4">👥</div>
-                    <h4 class="text-xl font-semibold mb-2">Mijozlar Boshqaruvi</h4>
-                    <p class="text-gray-600">Barcha mijozlaringizni bitta joyda boshqaring</p>
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <p class="text-gray-700 mb-6 italic">
+                        "Fit Control bizning klubimizni to'liq o'zgartiradi. Mijozlar boshqaruvi endi juda oson va tezkor. 14 kunlik sinovdan keyin darhol obuna oldik!"
+                    </p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                            A
+                        </div>
+                        <div>
+                            <div class="font-bold">Akmal Toshmatov</div>
+                            <div class="text-sm text-gray-500">Fitness Club "Power"</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="text-4xl mb-4">💰</div>
-                    <h4 class="text-xl font-semibold mb-2">To'lovlar Kuzatuvi</h4>
-                    <p class="text-gray-600">Oylik to'lovlarni avtomatik kuzatish</p>
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <p class="text-gray-700 mb-6 italic">
+                        "Statistika va hisobotlar ajoyib. Har oy daromad va xarajatlarni ko'rish oson. Telegram bot orqali mijozlar bilan aloqa qilish juda qulay."
+                    </p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                            S
+                        </div>
+                        <div>
+                            <div class="font-bold">Sardor Karimov</div>
+                            <div class="text-sm text-gray-500">Gym "Champion"</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="text-4xl mb-4">📊</div>
-                    <h4 class="text-xl font-semibold mb-2">Hisobotlar</h4>
-                    <p class="text-gray-600">Daromad, xarajat va foyda statistikasi</p>
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <p class="text-gray-700 mb-6 italic">
+                        "QR kod funksiyasi ajoyib! Mijozlar tez ro'yxatdan o'tadi va biz vaqt tejaymiz. Platforma oson va professional ko'rinadi."
+                    </p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                            D
+                        </div>
+                        <div>
+                            <div class="font-bold">Dilshod Rahimov</div>
+                            <div class="text-sm text-gray-500">Sport Center "Elite"</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Pricing -->
-    <section id="pricing" class="py-16 bg-gray-100">
+    <section id="pricing" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h3 class="text-3xl font-bold text-center mb-12">Narxlar</h3>
-            <div class="grid md:grid-cols-3 gap-8" x-show="!loading">
-                <template x-for="plan in plans" :key="plan.id">
-                    <div class="bg-white p-8 rounded-lg shadow-lg">
-                        <h4 class="text-2xl font-bold mb-2" x-text="plan.name"></h4>
-                        <p class="text-4xl font-bold text-blue-600 mb-4" x-text="plan.price + ' so\'m'"></p>
-                        <p class="text-gray-600 mb-6" x-text="plan.description"></p>
-                        <button @click="selectPlan(plan)" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+            <div x-show="loading" class="text-center py-8">
+                <p class="text-gray-600">Yuklanmoqda...</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8" x-show="!loading && plans.length > 0">
+                <template x-for="(plan, index) in plans" :key="plan.id">
+                    <div class="bg-white p-8 rounded-lg shadow-lg relative" :class="{'border-4 border-green-500 transform scale-105': index === 1}">
+                        <div x-show="index === 1" class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-1 rounded-full text-sm font-bold">
+                            Eng mashhur
+                        </div>
+                        <h4 class="text-2xl font-bold mb-2" x-text="plan.name || 'Nomsiz'"></h4>
+                        <p class="text-4xl font-bold text-green-600 mb-2" x-text="formatNumber(plan.price || 0) + ' so\'m'"></p>
+                        <p class="text-sm text-gray-500 mb-6" x-text="plan.plan_type === 'monthly' ? 'oyiga' : plan.plan_type === 'yearly' ? 'yiliga' : 'bir martalik'"></p>
+                        <p class="text-gray-600 mb-6" x-text="plan.description || ''"></p>
+                        <ul class="text-sm text-gray-600 mb-6 space-y-2">
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Cheksiz mijozlar</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>To'liq statistika</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Telegram bot</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>24/7 qo'llab-quvvatlash</span>
+                            </li>
+                        </ul>
+                        <button @click="selectPlan(plan)" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
                             Tanlash
                         </button>
                     </div>
                 </template>
+            </div>
+            <div x-show="!loading && plans.length === 0" class="text-center py-8">
+                <p class="text-gray-600">Obuna rejalari mavjud emas</p>
             </div>
         </div>
     </section>
@@ -79,34 +263,33 @@
                 <h3 class="text-2xl font-bold mb-6 text-center">Bepul sinovni boshlash</h3>
                 <form @submit.prevent="registerGym" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Fitness klub nomi</label>
-                        <input type="text" x-model="form.name" required
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Ism <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               x-model="form.name" 
+                               @input="validateName($event.target)"
+                               @blur="validateName($event.target)"
+                               required
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
+                               :class="{'field-error': fieldErrors.name, 'field-success': !fieldErrors.name && form.name}"
+                               placeholder="Fitness klub nomi">
+                        <div x-show="fieldErrors.name" class="error-message" x-text="fieldErrors.name"></div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Manzil</label>
-                        <input type="text" x-model="form.address"
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-                        <input type="tel" x-model="form.phone" required
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" x-model="form.email"
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Admin foydalanuvchi nomi</label>
-                        <input type="text" x-model="form.username" required
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Parol</label>
-                        <input type="password" x-model="form.password" required
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Telefon <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" 
+                               x-model="form.phone" 
+                               @input="validatePhone($event.target)"
+                               @blur="validatePhone($event.target)"
+                               required
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
+                               :class="{'field-error': fieldErrors.phone, 'field-success': !fieldErrors.phone && form.phone}"
+                               placeholder="+998901234567">
+                        <div x-show="fieldErrors.phone" class="error-message" x-text="fieldErrors.phone"></div>
+                        <div x-show="!fieldErrors.phone && form.phone" class="text-xs text-green-600 mt-1">Telefon formati to'g'ri</div>
                     </div>
                     <div x-show="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                         <span x-text="error"></span>
@@ -115,7 +298,7 @@
                         <span x-text="success"></span>
                     </div>
                     <button type="submit" :disabled="submitting"
-                            class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50">
+                            class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50">
                         <span x-show="!submitting">Ro'yxatdan o'tish</span>
                         <span x-show="submitting">Yuklanmoqda...</span>
                     </button>
@@ -139,11 +322,11 @@ function landingPage() {
         plans: [],
         form: {
             name: '',
-            address: '',
-            phone: '',
-            email: '',
-            username: '',
-            password: ''
+            phone: ''
+        },
+        fieldErrors: {
+            name: '',
+            phone: ''
         },
         submitting: false,
         error: '',
@@ -157,10 +340,17 @@ function landingPage() {
             try {
                 const response = await fetch('/api/subscriptions/plans/');
                 if (response.ok) {
-                    this.plans = await response.json();
+                    const data = await response.json();
+                    // Filter out null/undefined values and ensure all plans have id
+                    this.plans = Array.isArray(data) 
+                        ? data.filter(plan => plan && plan.id) 
+                        : [];
+                } else {
+                    this.plans = [];
                 }
             } catch (error) {
                 console.error('Error loading plans:', error);
+                this.plans = [];
             } finally {
                 this.loading = false;
             }
@@ -171,21 +361,65 @@ function landingPage() {
             document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
         },
         
+        validateName(input) {
+            const value = input.value.trim();
+            if (!value) {
+                this.fieldErrors.name = 'Ism maydoni to\'ldirilishi shart';
+                return false;
+            }
+            if (value.length < 2) {
+                this.fieldErrors.name = 'Ism kamida 2 ta belgidan iborat bo\'lishi kerak';
+                return false;
+            }
+            this.fieldErrors.name = '';
+            return true;
+        },
+        
+        validatePhone(input) {
+            const value = input.value.trim();
+            if (!value) {
+                this.fieldErrors.phone = 'Telefon maydoni to\'ldirilishi shart';
+                return false;
+            }
+            // Remove spaces and validate format
+            const cleanPhone = value.replace(/\s/g, '');
+            const phoneRegex = /^\+?998\d{9}$/;
+            if (!phoneRegex.test(cleanPhone)) {
+                this.fieldErrors.phone = 'Telefon formati noto\'g\'ri. Format: +998901234567';
+                return false;
+            }
+            this.fieldErrors.phone = '';
+            return true;
+        },
+        
         async registerGym() {
+            // Validate all fields before submission
+            const nameInput = document.querySelector('input[x-model="form.name"]');
+            const phoneInput = document.querySelector('input[x-model="form.phone"]');
+            
+            const isNameValid = this.validateName(nameInput);
+            const isPhoneValid = this.validatePhone(phoneInput);
+            
+            if (!isNameValid || !isPhoneValid) {
+                if (typeof showToast === 'function') {
+                    showToast('Iltimos, barcha maydonlarni to\'g\'ri to\'ldiring', 'error');
+                }
+                return;
+            }
+            
             this.submitting = true;
             this.error = '';
             this.success = '';
             
             try {
-                // Get CSRF token first
-                const csrfResponse = await fetch('/api/auth/login/', {
-                    method: 'GET',
-                    credentials: 'include'
-                });
                 const csrfToken = this.getCsrfToken();
                 
-                // Create gym and admin user in one call
-                const response = await fetch('/api/superuser/public/register/', {
+                if (!csrfToken) {
+                    throw new Error('CSRF token topilmadi. Sahifani yangilab qayta urinib ko\'ring.');
+                }
+                
+                // Submit trial request (minimal form)
+                const response = await fetch('/api/superuser/public/trial-request/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -193,38 +427,46 @@ function landingPage() {
                     },
                     credentials: 'include',
                     body: JSON.stringify({
-                        name: this.form.name,
-                        address: this.form.address,
-                        phone: this.form.phone,
-                        email: this.form.email,
-                        username: this.form.username,
-                        password: this.form.password
+                        name: this.form.name.trim(),
+                        phone: this.form.phone.trim().replace(/\s/g, '')
                     })
                 });
                 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Ro\'yxatdan o\'tishda xatolik');
+                    throw new Error(errorData.error || 'So\'rov yuborishda xatolik');
                 }
                 
                 const data = await response.json();
-                this.success = 'Muvaffaqiyatli ro\'yxatdan o\'tdingiz! 14 kunlik bepul sinov boshlandi. Login qilish uchun: ' + this.form.username;
+                if (typeof showToast === 'function') {
+                    showToast('So\'rovingiz muvaffaqiyatli yuborildi! Tez orada siz bilan bog\'lanamiz.', 'success');
+                }
+                this.success = 'So\'rovingiz muvaffaqiyatli yuborildi! Tez orada siz bilan bog\'lanamiz.';
                 this.form = {
                     name: '',
-                    address: '',
-                    phone: '',
-                    email: '',
-                    username: '',
-                    password: ''
+                    phone: ''
+                };
+                this.fieldErrors = {
+                    name: '',
+                    phone: ''
                 };
             } catch (error) {
                 this.error = error.message;
+                if (typeof showToast === 'function') {
+                    showToast(error.message, 'error');
+                }
             } finally {
                 this.submitting = false;
             }
         },
         
+        formatNumber(num) {
+            if (!num) return '0';
+            return new Intl.NumberFormat('uz-UZ').format(num);
+        },
+        
         getCsrfToken() {
+            // Try to get from cookie
             const cookies = document.cookie.split(';');
             for (let cookie of cookies) {
                 const [name, value] = cookie.trim().split('=');
@@ -232,6 +474,19 @@ function landingPage() {
                     return value;
                 }
             }
+            
+            // Try to get from meta tag
+            const metaTag = document.querySelector('meta[name=csrf-token]');
+            if (metaTag) {
+                return metaTag.getAttribute('content');
+            }
+            
+            // Try to get from Django's CSRF token in form
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfInput) {
+                return csrfInput.value;
+            }
+            
             return '';
         }
     }

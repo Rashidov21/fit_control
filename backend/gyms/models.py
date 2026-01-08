@@ -115,3 +115,37 @@ class Gym(models.Model):
             'total_expenses': float(total_expenses),
             'profit': float(profit),
         }
+
+
+class TrialRequest(models.Model):
+    """Trial request model for minimal registration."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    name = models.CharField(max_length=255, verbose_name='Name')
+    phone = models.CharField(max_length=20, verbose_name='Phone')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Status')
+    admin_notes = models.TextField(blank=True, verbose_name='Admin Notes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # If approved, link to gym
+    gym = models.ForeignKey(
+        'Gym',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='trial_requests',
+        verbose_name='Gym'
+    )
+    
+    class Meta:
+        verbose_name = 'Trial Request'
+        verbose_name_plural = 'Trial Requests'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.name} - {self.phone} ({self.status})"

@@ -5,10 +5,11 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from .models import Gym
+from core.models import User
+from .models import Gym, TrialRequest
 from .serializers import GymSerializer
 from core.models import QRCode
+from core.utils import send_telegram_message
 
 
 @api_view(['POST'])
@@ -62,4 +63,34 @@ def public_register_gym(request):
     return Response({
         'gym': serializer.data,
         'message': 'Gym and admin user created successfully. 14-day trial started.',
+    }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def public_register_trial_request(request):
+    """Public endpoint for minimal trial request registration (name and phone only)."""
+    name = request.data.get('name')
+    phone = request.data.get('phone')
+    
+    if not name or not phone:
+        return Response(
+            {'error': 'name and phone are required.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Create trial request
+    trial_request = TrialRequest.objects.create(
+        name=name,
+        phone=phone,
+        status='pending'
+    )
+    
+    # Send Telegram notification
+    message = f"Yangi trial so'rov qo'shildi:\nIsm: {name}\nTelefon: {phone}"
+    send_telegram_message(message)
+    
+    return Response({
+        'id': trial_request.id,
+        'message': 'Trial request submitted successfully. We will contact you soon.',
     }, status=status.HTTP_201_CREATED)

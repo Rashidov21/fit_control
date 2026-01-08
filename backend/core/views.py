@@ -55,24 +55,31 @@ class QRCodeDetailView(generics.RetrieveAPIView):
     
     def get_object(self):
         """Get QR code for current user's gym."""
-        if self.request.user.is_superuser:
-            gym_id = self.request.query_params.get('gym_id')
-            if gym_id:
-                try:
-                    from gyms.models import Gym
-                    gym = Gym.objects.get(id=gym_id)
-                except:
-                    return None
+        try:
+            if self.request.user.is_superuser:
+                gym_id = self.request.query_params.get('gym_id')
+                if gym_id:
+                    try:
+                        from gyms.models import Gym
+                        gym = Gym.objects.get(id=gym_id)
+                    except Gym.DoesNotExist:
+                        from rest_framework.exceptions import NotFound
+                        raise NotFound('Gym not found.')
+                else:
+                    from rest_framework.exceptions import ValidationError
+                    raise ValidationError('gym_id parameter is required for superuser.')
             else:
-                return None
-        else:
-            gym = self.request.user.gym
-        
-        if not gym:
-            return None
-        
-        qr_code, created = QRCode.objects.get_or_create(gym=gym)
-        return qr_code
+                gym = self.request.user.gym
+            
+            if not gym:
+                from rest_framework.exceptions import NotFound
+                raise NotFound('No gym associated with this user.')
+            
+            qr_code, created = QRCode.objects.get_or_create(gym=gym)
+            return qr_code
+        except Exception as e:
+            from rest_framework.exceptions import APIException
+            raise APIException(f'Error retrieving QR code: {str(e)}')
 
 
 @api_view(['GET'])
@@ -80,6 +87,12 @@ class QRCodeDetailView(generics.RetrieveAPIView):
 def verify_qr_token(request, token):
     """Verify QR token for Telegram bot."""
     try:
+        if not token:
+            return Response({
+                'valid': False,
+                'error': 'Token is required.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         qr_code = QRCode.objects.get(token=token)
         return Response({
             'valid': True,
@@ -91,3 +104,8 @@ def verify_qr_token(request, token):
             'valid': False,
             'error': 'Invalid QR token'
         }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'valid': False,
+            'error': f'Error verifying token: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

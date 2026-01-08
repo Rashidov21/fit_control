@@ -2,7 +2,7 @@
 Serializers for gym models.
 """
 from rest_framework import serializers
-from .models import Gym
+from .models import Gym, TrialRequest
 from subscriptions.serializers import SubscriptionPlanSerializer
 
 
@@ -50,3 +50,16 @@ class GymStatisticsSerializer(serializers.Serializer):
     total_income = serializers.FloatField()
     total_expenses = serializers.FloatField()
     profit = serializers.FloatField()
+
+
+class TrialRequestSerializer(serializers.ModelSerializer):
+    """Serializer for TrialRequest model."""
+    gym_name = serializers.CharField(source='gym.name', read_only=True)
+    
+    class Meta:
+        model = TrialRequest
+        fields = [
+            'id', 'name', 'phone', 'status', 'admin_notes',
+            'gym', 'gym_name', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
